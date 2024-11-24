@@ -119,3 +119,45 @@ This corresponding paper of this project will be attached here in the next month
 
 [Scalable Multi-Robot Collaboration with Large Language Models: Centralized or Decentralized Systems?](https://yongchao98.github.io/MIT-REALM-Multi-Robot/)
 
+
+## Transfer Learning with Customized Command-LTL datasets
+* As of 2024-11-24, the transfer learning training and testing are implemented on Colab and environment. The “transfer_learning_LTL2.ipynb” is the main file to run this transfer learning.
+
+### Dataset
+* The used custom dataset is “command_LTL_dataset_v01.csv”. This file is already located in the directory named “NL2TL/dataset/”.
+* Because the format of .csv file is different from the NL2TL’s, internally the realigned .csv file is generated.
+* As guided in this code, LTL symbols need to be converted to corresponding words like F -> finally, etc for better training.
+
+### Model
+* The used pretrained model is “checkpoint-62500 of t5-base” which is provided by above model [link](https://drive.google.com/drive/folders/1ZfZoYovWoy5z247VXZWZBniNrCOONX4N). Please download and place this model in the directory named “NL2TL/model/t4-base-epch20-infix-word-04-21/”. if not exits, please make the directory.
+* Transfer-learned model is uploaded to [t5-base-LTL_koreauniv-epoch20-trainpoint2082](https://drive.google.com/drive/folders/1O0WCr4y3ZAezQUkgaZ-gqTHpPG7pXxHN?usp=drive_link). Please download and place this model in the directory named “NL2TL/model/t5-base-transfer-learning/” and check the filename is correctly applied in the code.
+
+### Notes
+* As guided in this code, parenthetis correction for the predicted output is applied which is shown to enhance the accuracy a little higher.
+* Multi-step training with train-test partitioning with different ratio is NOT applied because it seems not effective in accuracy performance but also very time-consuming up to finish training.
+* As well as top-1 accuracy, which counts the number of perfectly matched LTL, bleu score and precision are added as an evaluation metric. These are popular metrics used for seq2seq tasks (translation).
+
+### Results
+* Prediction samples
+  ```
+  input: Transform the following sentence into Signal Temporal logic: Navigate to room A, pick the spray and arrange it at site C
+  label: finally(((InRoomA and SprayPickedUp) imply (SprayPlacedInSiteC)))
+  pred: finally((InRoomA) imply globally(SprayPickedUp) imply globally(SprayPlacedInSiteC))
+  ```
+  ```
+  input: Transform the following sentence into Signal Temporal logic: Make your way to room A, then proceed to room B, clutch the cup and move it to site B, then secure the coke can
+  label: finally((InRoomA imply InRoomB) and (CupPickedUp imply (CupPlacedInSiteB imply CokecanPickedUp)))
+  pred: finally(InRoomA imply finally(InRoomB imply finally(CupPickedUp imply finally(CupPlacedInSiteB imply CokecanPickedUp))))
+  ```
+
+* Compared with pre-trained model vs. transfer-learning model
+  ```
+  Top-1 accuracy = 0.0
+  Bleu score = 0.0005983101477937554
+  Bleu precision = [0.19616185735574238, 0.04045399339487217, 0.0032805021775610013, 0.0003434065934065934]
+  ```
+  ```
+  Top-1 accuracy = 0.09615384615384616
+  Bleu score = 0.5354062188772656
+  Bleu precision = [0.8618050151685388, 0.7313585529576325, 0.5328485424468097, 0.39822951716585675]
+  ```
