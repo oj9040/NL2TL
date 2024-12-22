@@ -1,0 +1,6 @@
+ltl_obj,com_obj,ltl_obj_aug,com_obj_aug
+InRoom,room,"['InLivingRoom', 'InBedRoom', 'InBathRoom', 'InDiningRoom']","['living room', 'bedroom', 'bathroom', 'dining room']"
+Spray,spray,"['HairSpray', 'Deodrant', 'Mist', 'Aerosol']","['hairspray', 'deodrant', 'mist', 'aerosol']"
+Cup,cup,"['Glass', 'Book', 'Plate', 'Spoon', 'Fork', 'Tray', 'Backpack', 'Toy', 'Pen', 'Apple', 'Banana', 'Snack', 'Knife', 'RemoteControl', 'Phone charger', 'Candle', 'Stapler', 'Scissors', 'Keys', 'Markers', 'Batteries', 'Box', 'WaterBottle']","['glass', 'book', 'plate', 'spoon', 'fork', 'tray', 'backpack', 'toy', 'pen', 'apple', 'banana', 'snack', 'knife', 'remote control', 'phone charger', 'candle', 'stapler', 'scissors', 'keys', 'markers', 'batteries', 'box', 'water bottle']"
+Cokecan,coke can,"['Spritecan', 'Aluminumcan', 'Sodacan', 'Foodcan', 'Paintcan', 'Aerosolcan', 'Beercan', 'Energydrinkcan']","['sprite can', 'aluminum can', 'soda can', 'food can', 'paint can', 'aerosol can', 'beer can', 'energy drink can']"
+Site,site,"['Spot', 'Place', 'Area', 'Venue', 'Point']","['spot', 'place', 'area', 'venue', 'point']"

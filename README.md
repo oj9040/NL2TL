@@ -126,38 +126,68 @@ This corresponding paper of this project will be attached here in the next month
 ### Dataset
 * The used custom dataset is “command_LTL_dataset_v01.csv”. This file is already located in the directory named “NL2TL/dataset/”.
 * Because the format of .csv file is different from the NL2TL’s, internally the realigned .csv file is generated.
-* As guided in this code, LTL symbols need to be converted to corresponding words like F -> finally, etc for better training.
+* As guided in this code, LTL symbols need to be converted to corresponding words like `F -> finally, & -> and, → -> imply`, etc for better training.
+
+### Data Augmentation
+* For data augmentation, the pair of commandt-LTL object (`room-InRoom`, `spray-Spray`, `cup-Cup`, etc.) appeared in the original dataset is augmented with other objects (`living room-InLivingRoom`, `hairspray-HairSpray`, `glass-Glass`, etc.).
+* In this way, the number of dataset is increased 15.8x from 2082 to 33080.
+
 
 ### Model
 * The used pretrained model is “checkpoint-62500 of t5-base” which is provided by above model [link](https://drive.google.com/drive/folders/1ZfZoYovWoy5z247VXZWZBniNrCOONX4N). Please download and place this model in the directory named “NL2TL/model/t4-base-epch20-infix-word-04-21/”. if not exits, please make the directory.
-* Transfer-learned model is uploaded to [t5-base-LTL_koreauniv-epoch20-trainpoint2082](https://drive.google.com/drive/folders/1O0WCr4y3ZAezQUkgaZ-gqTHpPG7pXxHN?usp=drive_link). Please download and place this model in the directory named “NL2TL/model/t5-base-transfer-learning/” and check the filename is correctly applied in the code.
+* Transfer-learned model is uploaded to [t5-base-LTL_koreauniv-epoch20-trainpoint2082](https://drive.google.com/drive/folders/1bVb1VUJbwuVjkqilez1eLPATKbRLAme9?usp=drive_link). The data augmented transfer-learned model is uploaded to [t5-base-LTL_koreauniv-epoch20-trainpoint33080](https://drive.google.com/drive/folders/10pFGzj1fwN6_g9tVxk26WmdkzqOVt9jG?usp=drive_link).
+* Please download and place this model in the directory named “NL2TL/model/t5-base-transfer-learning/” and check the filename is correctly applied in the code.
+
 
 ### Notes
 * As guided in this code, parenthetis correction for the predicted output is applied which is shown to enhance the accuracy a little higher.
 * Multi-step training with train-test partitioning with different ratio is NOT applied because it seems not effective in accuracy performance but also very time-consuming up to finish training.
 * As well as top-1 accuracy, which counts the number of perfectly matched LTL, bleu score and precision are added as an evaluation metric. These are popular metrics used for seq2seq tasks (translation).
+* The predicted output is compared with multi-labels because comparison with just a single label yields very low accuracy result.
 
 ### Results
+* The detailed result can be shown in the `result.txt` in each model checkpoint directory.
+
+
 * Prediction samples
   ```
-  input: Transform the following sentence into Signal Temporal logic: Navigate to room A, pick the spray and arrange it at site C
-  label: finally(((InRoomA and SprayPickedUp) imply (SprayPlacedInSiteC)))
-  pred: finally((InRoomA) imply globally(SprayPickedUp) imply globally(SprayPlacedInSiteC))
+  input:
+  Transform the following sentence into Signal Temporal logic: Navigate to room A, pick the spray and arrange it at site C
+  label:
+  finally((InRoomA) imply (SprayPickedUp) imply (SprayPlacedInSiteC))
+  finally((InRoomA) imply ((SprayPickedUp) imply (SprayPlacedInSiteC)))
+  finally((InRoomA) imply ((SprayPickedUp and (SprayPlacedInSiteC))))
+  finally(((InRoomA and SprayPickedUp) imply (SprayPlacedInSiteC)))
+  finally(((InRoomA imply SprayPickedUp) and (SprayPlacedInSiteC)))
+  finally((InRoomA) imply (SprayPickedUp and SprayPlacedInSiteC))
+  finally((InRoomA) imply globally(SprayPickedUp) imply globally(SprayPlacedInSiteC))
+  finally((InRoomA) imply globally(SprayPickedUp and SprayPlacedInSiteC))
+  finally((InRoomA) imply globally((SprayPickedUp) imply (SprayPlacedInSiteC)))
+  finally((InRoomA) imply globally((SprayPickedUp and (SprayPlacedInSiteC))))
+  pred:
+  finally((InRoomA) imply globally(SprayPickedUp) imply globally(SprayPlacedInSiteC))
+
+
+
+* Pre-trained model (t5-base-epch20-infix-word-04-21/checkpoint-62500)
   ```
+  The test data number = 208
+  Top-1 accuracy = 0.0
+  Bleu score = 0.0021368774128934388
+  Bleu precision = [0.21775697585757095, 0.04541883762940858, 0.0063233932830088265, 0.0006033182503770739] 
   ```
-  input: Transform the following sentence into Signal Temporal logic: Make your way to room A, then proceed to room B, clutch the cup and move it to site B, then secure the coke can
-  label: finally((InRoomA imply InRoomB) and (CupPickedUp imply (CupPlacedInSiteB imply CokecanPickedUp)))
-  pred: finally(InRoomA imply finally(InRoomB imply finally(CupPickedUp imply finally(CupPlacedInSiteB imply CokecanPickedUp))))
+* Transfer-learning model (t5-base-LTL_koreauniv-epoch20-trainpoint2082/checkpoint-2340)
+  ```
+  The test data number = 208
+  Top-1 accuracy = 0.9230769230769231
+  Bleu score = 0.971368353166469
+  Bleu precision = [0.9935897435897437, 0.9877705627705626, 0.9763507326007327, 0.9629700989518801]
+  ```
+* Transfer-learning model with data augmentation (t5-base-LTL_koreauniv-epoch20-trainpoint33080/checkpoint-28500)
+  ```
+  The test data number = 208
+  Top-1 accuracy = 0.9855769230769231
+  Bleu score = 0.9855769230769231
+  Bleu precision = [0.9913461538461539, 0.9903846153846154, 0.9855769230769231, 0.9855769230769231]
   ```
 
-* Compared with pre-trained model vs. transfer-learning model
-  ```
-  Top-1 accuracy = 0.0
-  Bleu score = 0.0005983101477937554
-  Bleu precision = [0.19616185735574238, 0.04045399339487217, 0.0032805021775610013, 0.0003434065934065934]
-  ```
-  ```
-  Top-1 accuracy = 0.09615384615384616
-  Bleu score = 0.5354062188772656
-  Bleu precision = [0.8618050151685388, 0.7313585529576325, 0.5328485424468097, 0.39822951716585675]
-  ```
